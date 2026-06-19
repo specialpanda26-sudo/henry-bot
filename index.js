@@ -57,8 +57,8 @@ async function startBot() {
 
 sock.ev.on('connection.update', ({ qr }) => {
   if (qr) {
-    const qrcode = require('qrcode-terminal');
-    qrcode.generate(qr, { small: true });
+    const qrLink = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(qr) + '&size=300x300';
+    console.log('SCAN THIS QR CODE LINK: ' + qrLink);
   }
 });
 
