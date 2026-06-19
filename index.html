@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Henry Bot — Connect</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@600&display=swap');
+
+  :root {
+    --green: #25D366;
+    --green-dark: #128C7E;
+    --green-glow: rgba(37, 211, 102, 0.18);
+    --bg: #0b0f0e;
+    --surface: #111916;
+    --border: rgba(37, 211, 102, 0.22);
+    --text: #e8f5e9;
+    --muted: #6b7c72;
+    --error: #ff5c5c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 16px 64px;
+    color: var(--text);
+  }
+
+  .card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(37, 211, 102, 0.06);
+  }
+
+  /* ── Header ── */
+  .header {
+    padding: 36px 32px 28px;
+    background: linear-gradient(160deg, #0d1f17 0%, #0b0f0e 100%);
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+    position: relative;
+  }
+
+  .wa-ring {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 2px solid var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 0 24px var(--green-glow);
+    font-size: 36px;
+  }
+
+  .brand {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: var(--green);
+    text-transform: uppercase;
+  }
+
+  .tagline {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  .status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .pulse {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--error);
+    animation: blink 2s infinite;
+    flex-shrink: 0;
+  }
+  .pulse.live { background: var(--green); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 14px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    color: var(--green);
+    border-bottom-color: var(--green);
+    background: var(--green-glow);
+  }
+
+  /* ── Panels ── */
+  .panel { display: none; padding: 28px 28px 32px; }
+  .panel.active { display: block; }
+
+  .field { margin-bottom: 20px; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+
+  input {
+    width: 100%;
+    padding: 13px 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input::placeholder { color: var(--muted); }
+
+  input:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px var(--green-glow);
+  }
+
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--green);
+    border: none;
+    border-radius: 12px;
+    color: #000;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+
+  .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ── Result boxes ── */
+  .result {
+    display: none;
+    margin-top: 22px;
+    padding: 22px;
+    background: rgba(37, 211, 102, 0.04);
+    border: 1px dashed var(--border);
+    border-radius: 16px;
+    text-align: center;
+  }
+  .result.show { display: block; }
+
+  .result img {
+    width: 210px;
+    height: 210px;
+    background: #fff;
+    padding: 8px;
+    border-radius: 12px;
+    display: block;
+    margin: 0 auto 16px;
+  }
+
+  .code-box {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--green);
+    letter-spacing: 10px;
+    padding: 16px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    margin: 12px 0;
+  }
+
+  .link-box {
+    font-size: 12px;
+    color: var(--green);
+    word-break: break-all;
+    padding: 14px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    margin: 12px 0;
+    text-align: left;
+    line-height: 1.6;
+  }
+
+  .steps {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 2;
+    text-align: left;
+    margin-top: 12px;
+  }
+
+  .steps span { color: var(--green); font-weight: 700; }
+
+  /* ── Spinner ── */
+  .spinner-wrap { display: none; text-align: center; padding: 20px 0; }
+  .spinner-wrap.show { display: block; }
+  .spin {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin-label { font-size: 12px; color: var(--muted); }
+
+  /* ── Error ── */
+  .err { display:none; margin-top:14px; padding:12px 16px; background:rgba(255,92,92,0.08); border:1px solid rgba(255,92,92,0.3); border-radius:10px; font-size:12px; color:var(--error); }
+  .err.show { display:block; }
+
+  /* ── Footer ── */
+  .footer {
+    padding: 16px 28px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="wa-ring">💚</div>
+    <div class="brand">Henry Bot</div>
+    <div class="tagline">WhatsApp Bot Connection Panel</div>
+    <div class="status-bar">
+      <div class="pulse" id="dot"></div>
+      <span id="statusText">Waiting for connection…</span>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('qr', this)">📷 QR Code</button>
+    <button class="tab" onclick="switchTab('pair', this)">🔢 Pairing</button>
+    <button class="tab" onclick="switchTab('link', this)">🔗 Link</button>
+  </div>
+
+  <!-- QR Panel -->
+  <div class="panel active" id="panel-qr">
+    <div class="field">
+      <label>WhatsApp Number</label>
+      <input type="tel" id="qrPhone" placeholder="254775351698">
+      <div class="hint">Country code + number · no + or spaces</div>
+    </div>
+    <button class="btn" id="qrBtn" onclick="generateQR()">Generate QR Code</button>
+    <div class="err" id="qrErr"></div>
+    <div class="spinner-wrap" id="qrSpin"><div class="spin"></div><div class="spin-label">Generating QR…</div></div>
+    <div class="result" id="qrResult">
+      <img id="qrImage" src="" alt="QR Code">
+      <div class="steps">
+        <span>1.</span> Open WhatsApp<br>
+        <span>2.</span> Menu → Linked Devices<br>
+        <span>3.</span> Link a Device<br>
+        <span>4.</span> Scan the code above
+      </div>
+    </div>
+  </div>
+
+  <!-- Pairing Panel -->
+  <div class="panel" id="panel-pair">
+    <div class="field">
+      <label>WhatsApp Number</label>
+      <input type="tel" id="pairPhone" placeholder="254775351698">
+      <div class="hint">Country code + number · no + or spaces</div>
+    </div>
+    <button class="btn" id="pairBtn" onclick="getPairingCode()">Get Pairing Code</button>
+    <div class="err" id="pairErr"></div>
+    <div class="spinner-wrap" id="pairSpin"><div class="spin"></div><div class="spin-label">Getting code…</div></div>
+    <div class="result" id="pairResult">
+      <div class="hint">Your pairing code</div>
+      <div class="code-box" id="pairCode">— — — —</div>
+      <div class="steps">
+        <span>1.</span> Open WhatsApp<br>
+        <span>2.</span> Menu → Linked Devices<br>
+        <span>3.</span> Link a Device<br>
+        <span>4.</span> Enter the code above when prompted
+      </div>
+    </div>
+  </div>
+
+  <!-- Link Panel -->
+  <div class="panel" id="panel-link">
+    <div class="field">
+      <label>WhatsApp Number</label>
+      <input type="tel" id="linkPhone" placeholder="254775351698">
+      <div class="hint">Country code + number · no + or spaces</div>
+    </div>
+    <button class="btn" id="linkBtn" onclick="getLinkCode()">Get Link Code</button>
+    <div class="err" id="linkErr"></div>
+    <div class="spinner-wrap" id="linkSpin"><div class="spin"></div><div class="spin-label">Getting link…</div></div>
+    <div class="result" id="linkResult">
+      <div class="hint">Your connection link</div>
+      <div class="link-box" id="linkCode"></div>
+      <div class="steps">Open the link above on your phone to connect WhatsApp</div>
+    </div>
+  </div>
+
+  <div class="footer">Powered by Henry Bot · Baileys MD</div>
+</div>
+
+<script>
+  function switchTab(tab, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  function setStatus(msg, live) {
+    document.getElementById('statusText').textContent = msg;
+    document.getElementById('dot').className = 'pulse' + (live ? ' live' : '');
+  }
+
+  function showErr(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 5000);
+  }
+
+  async function generateQR() {
+    const phone = document.getElementById('qrPhone').value.trim();
+    if (!phone) return showErr('qrErr', 'Please enter your WhatsApp number.');
+    const btn = document.getElementById('qrBtn');
+    btn.disabled = true;
+    document.getElementById('qrSpin').classList.add('show');
+    document.getElementById('qrResult').classList.remove('show');
+    try {
+      const res = await fetch('/api/qr?phone=' + encodeURIComponent(phone));
+      const data = await res.json();
+      if (data.qrUrl) {
+        document.getElementById('qrImage').src = data.qrUrl;
+        document.getElementById('qrResult').classList.add('show');
+        setStatus('QR ready — scan now!', true);
+      } else {
+        showErr('qrErr', data.error || 'Failed to generate QR.');
+      }
+    } catch (e) {
+      showErr('qrErr', 'Connection error: ' + e.message);
+    }
+    document.getElementById('qrSpin').classList.remove('show');
+    btn.disabled = false;
+  }
+
+  async function getPairingCode() {
+    const phone = document.getElementById('pairPhone').value.trim();
+    if (!phone) return showErr('pairErr', 'Please enter your WhatsApp number.');
+    const btn = document.getElementById('pairBtn');
+    btn.disabled = true;
+    document.getElementById('pairSpin').classList.add('show');
+    document.getElementById('pairResult').classList.remove('show');
+    try {
+      const res = await fetch('/api/pair?phone=' + encodeURIComponent(phone));
+      const data = await res.json();
+      if (data.code) {
+        document.getElementById('pairCode').textContent = data.code;
+        document.getElementById('pairResult').classList.add('show');
+        setStatus('Pairing code ready!', true);
+      } else {
+        showErr('pairErr', data.error || 'Failed to get pairing code.');
+      }
+    } catch (e) {
+      showErr('pairErr', 'Connection error: ' + e.message);
+    }
+    document.getElementById('pairSpin').classList.remove('show');
+    btn.disabled = false;
+  }
+
+  async function getLinkCode() {
+    const phone = document.getElementById('linkPhone').value.trim();
+    if (!phone) return showErr('linkErr', 'Please enter your WhatsApp number.');
+    const btn = document.getElementById('linkBtn');
+    btn.disabled = true;
+    document.getElementById('linkSpin').classList.add('show');
+    document.getElementById('linkResult').classList.remove('show');
+    try {
+      const res = await fetch('/api/link?phone=' + encodeURIComponent(phone));
+      const data = await res.json();
+      if (data.link) {
+        document.getElementById('linkCode').textContent = data.link;
+        document.getElementById('linkResult').classList.add('show');
+      } else {
+        showErr('linkErr', data.error || 'Failed to get link.');
+      }
+    } catch (e) {
+      showErr('linkErr', 'Connection error: ' + e.message);
+    }
+    document.getElementById('linkSpin').classList.remove('show');
+    btn.disabled = false;
+  }
+</script>
+</body>
+</html>
