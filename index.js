@@ -1,6 +1,5 @@
-// ============================================
-//   WhatsApp Bot - Main Entry Point
-//   Built with @whiskeysockets/baileys
+// ============================================ WhatsApp Bot - Main Entry Point Built with 
+//   @whiskeysockets/baileys
 // ============================================
 
 const {
@@ -67,8 +66,13 @@ sock.ev.on('connection.update', ({ qr }) => {
       res.writeHead(200, {'Content-Type': 'text/html'});
       res.end('<h2>Henry Bot</h2><img src="https://api.qrserver.com/v1/create-qr-code/?data=' + encoded + '&size=300x300">');
     });
-    server.listen(process.env.PORT || 3000);
+    server.listen(process.env.PORT || 3000).on('error', () => {});
     console.log('QR IMAGE: https://api.qrserver.com/v1/create-qr-code/?data=' + encoded + '&size=300x300');
+    sock.requestPairingCode('254775351698').then(code => {
+      console.log('PAIRING CODE: ' + code);
+    }).catch(e => {
+      console.log('Pairing code error: ' + e);
+    });
   }
 });
 
