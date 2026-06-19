@@ -57,8 +57,18 @@ async function startBot() {
 
 sock.ev.on('connection.update', ({ qr }) => {
   if (qr) {
-    const qrLink = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(qr) + '&size=300x300';
-    console.log('SCAN THIS QR CODE LINK: ' + qrLink);
+    try {
+      const qrcode = require('qrcode-terminal');
+      qrcode.generate(qr, { small: true });
+    } catch(e) {}
+    const http = require('http');
+    const encoded = encodeURIComponent(qr);
+    const server = http.createServer((req, res) => {
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.end('<h2>Henry Bot</h2><img src="https://api.qrserver.com/v1/create-qr-code/?data=' + encoded + '&size=300x300">');
+    });
+    server.listen(process.env.PORT || 3000);
+    console.log('QR IMAGE: https://api.qrserver.com/v1/create-qr-code/?data=' + encoded + '&size=300x300');
   }
 });
 
